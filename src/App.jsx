@@ -19,6 +19,8 @@ import {
   CardFooter,
   CardText,
   CardLink,
+  Modal,
+  Table,
 } from "react-bootstrap";
 import {
   PiFacebookLogoBold,
@@ -30,6 +32,7 @@ import toolz from "./assets/toolz.ico";
 import speedtest from "./assets/speedtestbyokla.ico";
 import norton from "./assets/norton.ico";
 import { TbDashboard, TbSourceCode } from "react-icons/tb";
+import { useEffect, useState } from "react";
 
 const Navigation = () => {
   return (
@@ -45,7 +48,9 @@ const Navigation = () => {
     >
       <Container>
         <NavbarBrand className="w-100">
-          <a href="/"><Badge style={{ fontSize: "1.5rem" }}>Website by Absor</Badge></a>
+          <a href="/">
+            <Badge style={{ fontSize: "1.5rem" }}>Website by Absor</Badge>
+          </a>
           <NavbarToggle className="mb-3 ms-4" />
         </NavbarBrand>
         <NavbarCollapse>
@@ -61,6 +66,15 @@ const Navigation = () => {
 };
 
 const Hero = () => {
+  // State untuk mengatur visibility modal
+  const [show, setShow] = useState(false);
+
+  // Fungsi untuk menampilkan modal
+  const handleShow = () => setShow(true);
+
+  // Fungsi untuk menyembunyikan modal
+  const handleClose = () => setShow(false);
+
   return (
     <div className="my-5" id="hero">
       <Container
@@ -88,9 +102,14 @@ const Hero = () => {
             <Button size="lg" className="tombol btn-success">
               <TbSourceCode /> Source
             </Button>
-            <Button size="lg" className="tombol btn-danger">
+            <Button
+              size="lg"
+              className="tombol btn-danger"
+              onClick={handleShow}
+            >
               Dashboard <TbDashboard />
             </Button>
+            <TableModal show={show} handleClose={handleClose} />
           </div>
         </div>
       </Container>
@@ -227,6 +246,70 @@ const Footer = () => {
     <footer className="text-center">
       <p className="text-body-tertiary">&copy; Absor 2024</p>
     </footer>
+  );
+};
+
+const TableModal = ({ show, handleClose }) => {
+  // Data contoh untuk tabel
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://192.168.56.2/admin/api.php");
+        const result = await response.json();
+        setData(result);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchData();
+  }, [data]);
+
+  return (
+    <Modal show={show} onHide={handleClose}>
+      <Modal.Header closeButton>
+        <Modal.Title>Data Tabel</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {/* Tabel menggunakan komponen Table dari React-Bootstrap */}
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Objek</th>
+              <th>Nilai</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Domain terblokir</td>
+              <td>{data.domains_being_blocked}</td>
+            </tr>
+            <tr>
+              <td>Kueri harian</td>
+              <td>{data.dns_queries_today}</td>
+            </tr>
+            <tr>
+              <td>Iklan terblokir hari ini</td>
+              <td>{data.ads_blocked_today}</td>
+            </tr>
+            <tr>
+              <td>Persentase terblokir</td>
+              <td>{data.ads_percentage_today} %</td>
+            </tr>
+            <tr>
+              <td>Domain unik</td>
+              <td>{data.unique_domains}</td>
+            </tr>
+          </tbody>
+        </Table>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleClose}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 };
 
