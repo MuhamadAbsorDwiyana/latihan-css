@@ -256,7 +256,7 @@ const TableModal = ({ show, handleClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://192.168.56.2/admin/api.php");
+        const response = await fetch("http://141.11.25.91/admin/api.php");
         const result = await response.json();
         setData(result);
       } catch (e) {
